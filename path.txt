@@ -1,0 +1,20 @@
+TO-DO-LIST/
+├─ Backend/
+│  ├─ .idea/
+│  ├─ .venv/
+│  ├─ templates/
+│  │  ├─ dashboard.html
+│  │  └─ index.html
+│  ├─ venv/
+│  ├─ app.py
+│  └─ requirements.txt
+├─ Database/
+│  ├─ schema.sql
+│  └─ seed.sql
+├─ Docs/
+│  ├─ API-Documentation.md
+│  ├─ architecture.md
+│  ├─ database-design.md
+│  └─ ER-diagram.png
+├─ .gitignore
+└─ README.md

@@ -1,111 +1,183 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from flask_cors import CORS
 import mysql.connector
 from datetime import datetime
+from functools import wraps
 
 app = Flask(__name__)
+app.secret_key = 'your-secret-key-change-this-in-production'  # Session ke liye
 CORS(app)
 
 # ---------------- DATABASE CONNECTION ---------------- #
+def get_db():
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="Uni#21que",
+        database="student_task_db",
+        autocommit=True
+    )
 
-db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="your_password",
-    database="student_task_db"
-)
+# ---------------- LOGIN REQUIRED DECORATOR ---------------- #
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('home'))
+        return f(*args, **kwargs)
+    return decorated_function
 
-cursor = db.cursor(dictionary=True)
+# ---------------- FRONTEND ROUTES ---------------- #
+@app.route('/')
+def home():
+    if 'user_id' in session:
+        return redirect(url_for('dashboard'))
+    return render_template('index.html')
 
-# ---------------- AUTH ROUTES ---------------- #
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html', 
+                         user_name=session.get('user_name'),
+                         user_id=session.get('user_id'))
 
-@app.route('/register', methods=['POST'])
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('home'))
+
+# ---------------- AUTH API ROUTES ---------------- #
+@app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
     name = data.get("name")
     email = data.get("email")
     password = data.get("password")
 
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+
     query = "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)"
     values = (name, email, password)
 
     try:
         cursor.execute(query, values)
-        db.commit()
-        return jsonify({"message": "User registered successfully"})
-    except:
-        return jsonify({"error": "User already exists"}), 400
+        cursor.close()
+        db.close()
+        return jsonify({"message": "User registered successfully", "success": True})
+    except Exception as e:
+        return jsonify({"error": "User already exists", "success": False}), 400
 
 
-@app.route('/login', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
     email = data.get("email")
     password = data.get("password")
 
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+
     query = "SELECT * FROM users WHERE email=%s AND password=%s"
     cursor.execute(query, (email, password))
     user = cursor.fetchone()
+    
+    cursor.close()
+    db.close()
 
     if user:
-        return jsonify({"message": "Login successful", "user_id": user["id"]})
+        # Session mein store karo
+        session['user_id'] = user["id"]
+        session['user_name'] = user["name"]
+        
+        return jsonify({
+            "message": "Login successful", 
+            "user_id": user["id"],
+            "name": user["name"],
+            "success": True
+        })
     else:
-        return jsonify({"error": "Invalid credentials"}), 401
+        return jsonify({"error": "Invalid credentials", "success": False}), 401
 
 
-# ---------------- TASK ROUTES ---------------- #
-
-@app.route('/tasks/<int:user_id>', methods=['GET'])
-def get_tasks(user_id):
+# ---------------- TASK API ROUTES ---------------- #
+@app.route('/api/tasks', methods=['GET'])
+@login_required
+def get_tasks():
+    user_id = session.get('user_id')
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    
     query = "SELECT * FROM tasks WHERE user_id=%s ORDER BY created_at DESC"
     cursor.execute(query, (user_id,))
     tasks = cursor.fetchall()
+    
+    cursor.close()
+    db.close()
+    
     return jsonify(tasks)
 
 
-@app.route('/tasks', methods=['POST'])
+@app.route('/api/tasks', methods=['POST'])
+@login_required
 def add_task():
     data = request.json
-    user_id = data.get("user_id")
+    user_id = session.get('user_id')
     title = data.get("title")
     description = data.get("description")
     due_date = data.get("due_date")
+    priority = data.get("priority", "medium")
+
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
 
     query = """
-        INSERT INTO tasks (user_id, title, description, status, due_date, created_at)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO tasks (user_id, title, description, status, due_date, priority, created_at)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
     """
-    values = (user_id, title, description, "pending", due_date, datetime.now())
+    values = (user_id, title, description, "pending", due_date, priority, datetime.now())
 
     cursor.execute(query, values)
-    db.commit()
+    task_id = cursor.lastrowid
+    
+    cursor.close()
+    db.close()
 
-    return jsonify({"message": "Task added successfully"})
+    return jsonify({"message": "Task added successfully", "task_id": task_id, "success": True})
 
 
-@app.route('/tasks/<int:task_id>', methods=['PUT'])
+@app.route('/api/tasks/<int:task_id>', methods=['PUT'])
+@login_required
 def update_task(task_id):
     data = request.json
     status = data.get("status")
 
-    query = "UPDATE tasks SET status=%s WHERE id=%s"
-    cursor.execute(query, (status, task_id))
-    db.commit()
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
 
-    return jsonify({"message": "Task updated successfully"})
+    query = "UPDATE tasks SET status=%s WHERE id=%s AND user_id=%s"
+    cursor.execute(query, (status, task_id, session.get('user_id')))
+    
+    cursor.close()
+    db.close()
+
+    return jsonify({"message": "Task updated successfully", "success": True})
 
 
-@app.route('/tasks/<int:task_id>', methods=['DELETE'])
+@app.route('/api/tasks/<int:task_id>', methods=['DELETE'])
+@login_required
 def delete_task(task_id):
-    query = "DELETE FROM tasks WHERE id=%s"
-    cursor.execute(query, (task_id,))
-    db.commit()
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    
+    query = "DELETE FROM tasks WHERE id=%s AND user_id=%s"
+    cursor.execute(query, (task_id, session.get('user_id')))
+    
+    cursor.close()
+    db.close()
 
-    return jsonify({"message": "Task deleted successfully"})
+    return jsonify({"message": "Task deleted successfully", "success": True})
 
-
-# ---------------- RUN SERVER ---------------- #
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
+    app.run(debug=True, port=5000)

@@ -12,8 +12,11 @@ env/
 # Environment variables
 .env
 
-# VS Code
+# VS Code & IDEs
 .vscode/
+.idea/          # ← YE ADD KARO
+*.swp
+*.swo
 
 # Mac / Windows junk
 .DS_Store
@@ -22,9 +25,12 @@ Thumbs.db
 # Logs
 *.log
 
-# Database (agar kabhi local db file use kare)
+# Database
 *.sqlite3
 
 # Build files
 dist/
 build/
+
+# Temporary files
+path.txt        # ← YE BHI ADD KARO
