@@ -55,5 +55,5 @@ A beautiful, modern task management application with **glassmorphism UI design**
 ### **Step 1: Clone Repository**
 
 ```bash
-git clone https://github.com/itsme-ishaan/To-Do-List.git
+git clone https://github.com/itsme-ishaan/TaskFlow.git
 cd To-Do-List
