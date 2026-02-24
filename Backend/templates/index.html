@@ -122,6 +122,73 @@
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.error { background: #f43f5e; box-shadow: 0 10px 30px rgba(244, 63, 94, 0.3); }
         .toast.success { background: #10b981; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); }
+
+        /* ========================================================
+           AI CHATBOT CSS - ADDED BELOW EXISTING STYLES
+        ======================================================== */
+        .ai-chatbot-btn {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 60px; height: 60px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white; font-size: 1.5rem; border: none;
+            cursor: pointer; box-shadow: 0 10px 20px rgba(168, 85, 247, 0.4);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000; display: flex; align-items: center; justify-content: center;
+        }
+        .ai-chatbot-btn:hover { transform: scale(1.1) rotate(5deg); }
+        
+        .chat-window {
+            position: fixed; bottom: 110px; right: 30px;
+            width: 360px; height: 480px; background: var(--glass-bg);
+            backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
+            border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            display: flex; flex-direction: column; overflow: hidden;
+            transform: translateY(20px); opacity: 0; pointer-events: none;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 999;
+        }
+        .chat-window.active { transform: translateY(0); opacity: 1; pointer-events: all; }
+        
+        .chat-header {
+            padding: 18px 20px; background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid var(--glass-border); font-weight: 700;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .close-chat { cursor: pointer; color: #94a3b8; transition: 0.3s; font-size: 1.2rem; }
+        .close-chat:hover { color: var(--error); transform: scale(1.1); }
+        
+        .chat-body {
+            flex: 1; padding: 20px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .chat-body::-webkit-scrollbar { width: 6px; }
+        .chat-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        
+        .chat-msg {
+            max-width: 85%; padding: 12px 16px; border-radius: 16px;
+            font-size: 0.95rem; line-height: 1.5; word-wrap: break-word;
+        }
+        .msg-user {
+            background: linear-gradient(135deg, var(--primary), var(--accent)); color: white;
+            align-self: flex-end; border-bottom-right-radius: 4px;
+        }
+        .msg-bot {
+            background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border);
+            align-self: flex-start; border-bottom-left-radius: 4px;
+        }
+        
+        .chat-footer {
+            padding: 15px; border-top: 1px solid var(--glass-border);
+            display: flex; gap: 10px; background: rgba(0,0,0,0.3);
+        }
+        .chat-footer input {
+            flex: 1; padding: 12px 18px; border-radius: 12px;
+            background: var(--input-bg); border: 1px solid var(--glass-border);
+            color: var(--text); outline: none; font-family: inherit; font-size: 0.95rem;
+        }
+        .chat-footer button {
+            background: var(--primary); border: none; width: 45px; border-radius: 12px;
+            color: white; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center;
+        }
+        .chat-footer button:hover { background: var(--accent); transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -194,6 +261,24 @@
                 </form>
                 <p class="switch-text">Already registered? <span onclick="toggleForms()">Login here</span></p>
             </div>
+        </div>
+    </div>
+
+    <button class="ai-chatbot-btn" onclick="toggleChat()" title="Need Help?">
+        <i class="fas fa-robot"></i>
+    </button>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <span><i class="fas fa-bolt" style="color: var(--primary); margin-right: 8px;"></i> AI Assistant</span>
+            <i class="fas fa-times close-chat" onclick="toggleChat()"></i>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-msg msg-bot">Hello! Main TaskFlow ka AI assistant hu. Main aapki kaise madad kar sakta hu?</div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="handleChatEnter(event)">
+            <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
@@ -314,6 +399,55 @@
                 btn.disabled = false;
                 btn.innerHTML = originalContent;
             }
+        }
+
+        /* ========================================================
+           AI CHATBOT JAVASCRIPT LOGIC - ADDED BELOW EXISTING SCRIPTS
+        ======================================================== */
+        function toggleChat() {
+            document.getElementById('chatWindow').classList.toggle('active');
+        }
+
+        function handleChatEnter(e) {
+            if(e.key === 'Enter') sendChatMessage();
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if(!msg) return;
+
+            const chatBody = document.getElementById('chatBody');
+            
+            // User message ko UI me show karna
+            const userDiv = document.createElement('div');
+            userDiv.className = 'chat-msg msg-user';
+            userDiv.innerText = msg;
+            chatBody.appendChild(userDiv);
+            input.value = '';
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            // Typing indicator (Bot soch raha hai)
+            const botDiv = document.createElement('div');
+            botDiv.className = 'chat-msg msg-bot';
+            botDiv.innerHTML = '<i class="fas fa-ellipsis-h fa-fade"></i>';
+            chatBody.appendChild(botDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            try {
+                // API par request bhejna
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg })
+                });
+                
+                const data = await res.json();
+                botDiv.innerText = data.reply || "Error: AI se reply nahi aaya.";
+            } catch (err) {
+                botDiv.innerText = "Connection Error! Python server run nahi ho raha ya API limit khatam ho gayi.";
+            }
+            chatBody.scrollTop = chatBody.scrollHeight;
         }
     </script>
 </body>

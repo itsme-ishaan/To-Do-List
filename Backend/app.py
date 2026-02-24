@@ -5,6 +5,9 @@ from datetime import datetime
 from functools import wraps
 import os
 
+# --- NAYA SDK IMPORT KIYA HAI ---
+from google import genai
+
 app = Flask(__name__)
 
 # Security & Session Configuration
@@ -16,6 +19,16 @@ app.config.update(
 )
 
 CORS(app, supports_credentials=True)
+
+# ---------------- AI CHATBOT SETUP (NAYA SDK) ---------------- #
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'AIzaSyA18noY3O9rI6OFclhi-bxuTghn0riqK2M')
+
+try:
+    # Naye package me setup is tarah hota hai
+    ai_client = genai.Client(api_key=GEMINI_API_KEY)
+except Exception as e:
+    print(f"AI Setup Error: {e}")
+    ai_client = None
 
 # ---------------- DATABASE CONNECTION ---------------- #
 def get_db():
@@ -215,6 +228,31 @@ def delete_task(task_id):
     cursor.execute("DELETE FROM tasks WHERE id=%s", (task_id,))
     db.close()
     return jsonify({"success": True})
+
+# ---------------- AI CHATBOT ROUTE (NAYA API CALL LOGIC) ---------------- #
+@app.route('/api/chat', methods=['POST'])
+def chat_with_ai():
+    data = request.json
+    user_message = data.get("message", "")
+
+    if not user_message:
+        return jsonify({"reply": "Aapne koi message nahi bheja."}), 400
+
+    if not ai_client:
+        return jsonify({"reply": "System Error: Backend me AI Client setup nahi hua hai."})
+
+    try:
+        system_prompt = f"You are a helpful, professional AI assistant for a project management tool named TaskFlow. Answer concisely and politely. The user says: {user_message}"
+        
+        # Naye package ka function call
+        response = ai_client.models.generate_content(
+            model='gemini-2.0-flash',
+            contents=system_prompt,
+        )
+        return jsonify({"reply": response.text})
+    except Exception as e:
+        print(f"AI Generation Error: {e}")
+        return jsonify({"reply": "Maafi chahunga, main abhi theek se connect nahi kar paa raha hu. Thodi der baad try karein."})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
