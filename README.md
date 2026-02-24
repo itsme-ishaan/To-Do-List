@@ -18,19 +18,27 @@ Yahan aap project ka interface aur design dekh sakte hain:
 
 <table border="0">
   <tr>
-    <td width="50%"><b>🔐 Login & Security</b></td>
-    <td width="50%"><b>📊 Main Dashboard</b></td>
+    <td width="50%"><b>🔐 Secure Login</b></td>
+    <td width="50%"><b>📊 Overview Dashboard</b></td>
   </tr>
   <tr>
     <td><img src="screenshots/login.png" alt="Login Page" width="100%"></td>
     <td><img src="screenshots/dashboard.png" alt="Dashboard" width="100%"></td>
   </tr>
   <tr>
-    <td><b>📅 Calendar View</b></td>
-    <td><b>🎨 UI Prototype & Design</b></td>
+    <td><b>📅 Interactive Calendar</b></td>
+    <td><b>📚 Academic Syllabus</b></td>
   </tr>
   <tr>
     <td><img src="screenshots/calendar.png" alt="Calendar View" width="100%"></td>
+    <td><img src="screenshots/syllabus.png" alt="Syllabus View" width="100%"></td>
+  </tr>
+  <tr>
+    <td><b>🏆 Results & Analytics</b></td>
+    <td><b>🎨 UI Prototype</b></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/result.png" alt="Results View" width="100%"></td>
     <td><img src="screenshots/prototype.png" alt="UI Prototype" width="100%"></td>
   </tr>
 </table>
@@ -67,5 +75,5 @@ Yahan aap project ka interface aur design dekh sakte hain:
 
 ### **Step 1: Clone the Project**
 ```bash
-git clone [https://github.com/itsme-ishaan/TaskFlow.git]
+git clone [https://github.com/itsme-ishaan/TaskFlow.git](https://github.com/itsme-ishaan/TaskFlow.git)
 cd TaskFlow
