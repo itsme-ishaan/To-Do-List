@@ -3,244 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskFlow | Login</title>
+    <title>TaskFlow | Professional Gateway</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <style>
         :root {
-            /* DARK MODE (Default) */
-            --bg-dark: #09090b;
-            --primary: #6366f1;
-            --accent: #a855f7;
-            --text: #ffffff;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --input-bg: rgba(0,0,0,0.3);
-            --error: #f43f5e;
-            --success: #10b981;
+            --bg-dark: #09090b; --primary: #6366f1; --accent: #a855f7;
+            --text: #ffffff; --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1); --input-bg: rgba(0,0,0,0.3);
+            --error: #f43f5e; --success: #10b981;
         }
 
-        /* LIGHT MODE */
         [data-theme="light"] {
-            --bg-dark: #f3f4f6;
-            --text: #1f2937;
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(0, 0, 0, 0.1);
+            --bg-dark: #f3f4f6; --text: #1f2937;
+            --glass-bg: rgba(255, 255, 255, 0.7); --glass-border: rgba(0, 0, 0, 0.1);
             --input-bg: rgba(255, 255, 255, 0.9);
         }
 
-        /* GREY / DIM MODE */
-        [data-theme="grey"] {
-            --bg-dark: #e2e8f0;
-            --text: #334155;
-            --glass-bg: rgba(255, 255, 255, 0.4);
-            --glass-border: rgba(0, 0, 0, 0.1);
-            --input-bg: rgba(255, 255, 255, 0.6);
-        }
-
-        /* PREMIUM MODE (NEW) */
         [data-theme="premium"] {
-            --bg-dark: #050505;
-            --text: #ffffff;
-            --primary: #FFD700; /* Gold */
-            --accent: #8A2BE2; /* Purple */
-            --glass-bg: rgba(20, 20, 25, 0.8);
+            --bg-dark: #050505; --text: #ffffff; --primary: #FFD700;
+            --accent: #8A2BE2; --glass-bg: rgba(20, 20, 25, 0.8);
             --glass-border: rgba(255, 215, 0, 0.3);
-            --input-bg: rgba(0, 0, 0, 0.5);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            font-family: 'Outfit', sans-serif; background-color: var(--bg-dark);
+            color: var(--text); height: 100vh; display: flex; align-items: center;
+            justify-content: center; overflow: hidden;
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.2), transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.2), transparent 40%);
-            transition: background-color 0.3s, color 0.3s;
+                radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.15), transparent 25%);
+            transition: 0.3s;
         }
 
-        /* THEME TOGGLE BUTTON */
         .theme-toggle {
-            position: absolute;
-            top: 30px;
-            right: 30px;
-            width: 45px; 
-            height: 45px;
-            border-radius: 50%;
-            border: 1px solid var(--glass-border);
-            background: var(--glass-bg);
-            color: var(--text);
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: 0.3s;
-            z-index: 1000;
+            position: absolute; top: 30px; right: 30px;
+            width: 45px; height: 45px; border-radius: 50%;
+            border: 1px solid var(--glass-border); background: var(--glass-bg);
+            color: var(--text); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1.2rem; transition: 0.3s; z-index: 1000;
             backdrop-filter: blur(10px);
         }
-        .theme-toggle:hover { border-color: var(--primary); color: var(--primary); transform: rotate(20deg); }
-        [data-theme="premium"] .theme-toggle { box-shadow: inset 0 0 10px rgba(255,215,0,0.2); }
 
-        /* --- GLASS CARD --- */
         .container {
-            position: relative;
-            width: 900px;
-            height: 550px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-            display: flex;
-            overflow: hidden;
-            transition: 0.3s;
+            position: relative; width: 950px; height: 620px; 
+            background: var(--glass-bg); backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 28px;
+            display: flex; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.3);
         }
-        [data-theme="premium"] .container { box-shadow: 0 20px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,215,0,0.05); }
 
-        /* LEFT SIDE (Branding) */
         .branding-section {
-            flex: 1;
-            padding: 50px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            background: rgba(255,255,255,0.02);
+            flex: 1.2; padding: 60px; display: flex; flex-direction: column;
+            justify-content: center; background: rgba(255,255,255,0.01);
             border-right: 1px solid var(--glass-border);
-            position: relative;
         }
 
         .branding-section h1 {
-            font-size: 3.5rem;
-            line-height: 1;
-            margin-bottom: 20px;
+            font-size: 4rem; font-weight: 700;
             background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
         }
 
-        .branding-section p {
-            font-size: 1.1rem;
-            color: #94a3b8;
-            line-height: 1.6;
-        }
+        .branding-section p { font-size: 1.2rem; color: #94a3b8; margin-bottom: 40px; }
 
-        .floating-icon {
-            position: absolute;
-            font-size: 10rem;
-            opacity: 0.05;
-            top: -20px;
-            left: -20px;
-            transform: rotate(-15deg);
-        }
-
-        /* RIGHT SIDE (Forms) */
-        .form-section {
-            flex: 1;
-            position: relative;
-            padding: 50px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .form-box {
-            position: absolute;
-            width: 100%;
-            padding: 0 50px;
-            transition: all 0.5s ease-in-out;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .form-box.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        h2 { margin-bottom: 30px; font-size: 2rem; font-weight: 600; }
-
-        .input-group { margin-bottom: 20px; position: relative; }
-        .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #64748b; }
-
-        input {
-            width: 100%;
-            padding: 15px 15px 15px 45px;
-            background: var(--input-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: var(--text);
-            font-family: inherit;
-            outline: none;
+        .vision-badges { display: flex; flex-direction: column; gap: 15px; }
+        .badge {
+            background: rgba(255,255,255,0.05); padding: 12px 20px; border-radius: 12px;
+            display: flex; align-items: center; gap: 15px; font-size: 0.95rem; border: 1px solid var(--glass-border);
             transition: 0.3s;
         }
+        .badge:hover { background: rgba(99, 102, 241, 0.1); transform: translateX(10px); }
+        .badge i { color: var(--primary); font-size: 1.2rem; }
 
-        input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
-        [data-theme="premium"] input:focus { box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); }
+        .form-section { flex: 1; position: relative; padding: 50px; display: flex; flex-direction: column; justify-content: center; }
 
-        button.form-btn {
-            width: 100%; padding: 15px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border: none; border-radius: 12px;
-            color: white; font-size: 1rem; font-weight: 600;
-            cursor: pointer; transition: transform 0.2s; margin-top: 10px;
+        .form-box {
+            position: absolute; width: 100%; padding: 0 50px;
+            transition: 0.5s ease-in-out; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); opacity: 0; pointer-events: none;
         }
-        
-        [data-theme="premium"] button.form-btn { color: #000; }
+        .form-box.active { opacity: 1; pointer-events: all; }
 
-        button.form-btn:hover { transform: scale(1.02); }
+        .input-group { margin-bottom: 18px; position: relative; }
+        .input-group i:first-child { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #64748b; }
+        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #64748b; }
 
-        .switch-text { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #94a3b8; }
-        .switch-text span { color: var(--primary); cursor: pointer; font-weight: 600; }
+        input, select {
+            width: 100%; padding: 15px 40px 15px 45px;
+            background: var(--input-bg); border: 1px solid var(--glass-border);
+            border-radius: 14px; color: var(--text); outline: none; transition: 0.3s; font-family: inherit;
+        }
+        select option { background: #18181b; color: white; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
 
-        /* Notification Toast */
+        .form-btn {
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none; border-radius: 14px; color: white;
+            font-size: 1rem; font-weight: 700; cursor: pointer; transition: 0.3s;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .form-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); }
+        .form-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        .switch-text { text-align: center; margin-top: 25px; color: #94a3b8; }
+        .switch-text span { color: var(--primary); cursor: pointer; font-weight: 700; border-bottom: 1px solid transparent; transition: 0.3s; }
+        .switch-text span:hover { border-bottom-color: var(--primary); }
+
         .toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150%);
-            padding: 15px 25px; border-radius: 10px;
-            color: white; font-weight: 500;
-            transition: 0.3s; z-index: 1000;
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-200%);
+            padding: 16px 32px; border-radius: 12px; color: white; font-weight: 600;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2000;
         }
         .toast.show { transform: translateX(-50%) translateY(0); }
-        .toast.error { background: var(--error); box-shadow: 0 5px 15px rgba(244, 63, 94, 0.4); }
-        .toast.success { background: var(--success); box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); }
-
-        @media (max-width: 768px) {
-            .container { flex-direction: column; height: auto; width: 95%; }
-            .branding-section { padding: 30px; text-align: center; border-right: none; border-bottom: 1px solid var(--glass-border); }
-            .form-section { height: 450px; }
-        }
+        .toast.error { background: #f43f5e; box-shadow: 0 10px 30px rgba(244, 63, 94, 0.3); }
+        .toast.success { background: #10b981; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); }
     </style>
 </head>
 <body>
 
-    <button class="theme-toggle" onclick="toggleTheme()" title="Switch Theme">
-        <i class="fas fa-moon" id="themeIcon"></i>
-    </button>
-
-    <div id="toast" class="toast">Message here</div>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Switch Theme"><i class="fas fa-moon" id="themeIcon"></i></button>
+    <div id="toast" class="toast"></div>
 
     <div class="container">
         <div class="branding-section">
-            <i class="fas fa-layer-group floating-icon"></i>
             <h1>TaskFlow</h1>
-            <p>Organize your academic life. Secure, Fast, and Distraction-free.</p>
+            <p>Advanced Management System designed for modern Software Teams.</p>
+            <div class="vision-badges">
+                <div class="badge"><i class="fas fa-sync"></i> <span>Agile Methodology Ready</span></div>
+                <div class="badge"><i class="fas fa-users-cog"></i> <span>Leadership & Coordination</span></div>
+                <div class="badge"><i class="fas fa-chart-line"></i> <span>Iterative Progress Tracking</span></div>
+            </div>
         </div>
 
         <div class="form-section">
-            
             <div class="form-box active" id="loginForm">
-                <h2>Welcome Back</h2>
+                <h2 style="margin-bottom: 8px;">Welcome Back</h2>
+                <p style="color: #94a3b8; margin-bottom: 30px;">Login to access your dashboard.</p>
                 <form onsubmit="handleLogin(event)">
                     <div class="input-group">
                         <i class="fas fa-envelope"></i>
@@ -249,76 +152,83 @@
                     <div class="input-group">
                         <i class="fas fa-lock"></i>
                         <input type="password" id="loginPass" placeholder="Password" required>
+                        <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('loginPass', this)"></i>
                     </div>
-                    <button type="submit" id="loginBtn" class="form-btn">Login</button>
+                    <button type="submit" id="loginBtn" class="form-btn">
+                        <span>Authorize & Login</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
                 </form>
-                <p class="switch-text">New here? <span onclick="toggleForms()">Create Account</span></p>
+                <p class="switch-text">New member? <span onclick="toggleForms()">Create Account</span></p>
             </div>
 
             <div class="form-box" id="signupForm">
-                <h2>Create Account</h2>
+                <h2 style="margin-bottom: 8px;">Join TaskFlow</h2>
+                <p style="color: #94a3b8; margin-bottom: 30px;">Start managing projects efficiently.</p>
                 <form onsubmit="handleRegister(event)">
                     <div class="input-group">
                         <i class="fas fa-user"></i>
-                        <input type="text" id="regName" placeholder="Full Name" required>
+                        <input type="text" id="regName" placeholder="Full Name (e.g. Ishaan Gaur)" required>
                     </div>
                     <div class="input-group">
                         <i class="fas fa-envelope"></i>
                         <input type="email" id="regEmail" placeholder="Email Address" required>
                     </div>
                     <div class="input-group">
+                        <i class="fas fa-user-tag"></i>
+                        <select id="regRole" required>
+                            <option value="" disabled selected>Select Your Role</option>
+                            <option value="student">I am a Student</option>
+                            <option value="admin">I am an Admin</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
                         <i class="fas fa-lock"></i>
                         <input type="password" id="regPass" placeholder="Choose Password" required>
+                        <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('regPass', this)"></i>
                     </div>
-                    <button type="submit" id="regBtn" class="form-btn">Sign Up</button>
+                    <button type="submit" id="regBtn" class="form-btn">
+                        <span>Register Team Member</span>
+                        <i class="fas fa-user-plus"></i>
+                    </button>
                 </form>
-                <p class="switch-text">Already have an account? <span onclick="toggleForms()">Login</span></p>
+                <p class="switch-text">Already registered? <span onclick="toggleForms()">Login here</span></p>
             </div>
         </div>
     </div>
 
     <script>
-        // --- THEME SWITCHER LOGIC (4 THEMES) ---
         function toggleTheme() {
             const html = document.documentElement;
             const icon = document.getElementById('themeIcon');
-            const current = html.getAttribute('data-theme');
+            const themes = ['dark', 'light', 'grey', 'premium'];
+            let current = html.getAttribute('data-theme') || 'dark';
+            let nextIndex = (themes.indexOf(current) + 1) % themes.length;
+            let next = themes[nextIndex];
             
-            if (current === 'dark') {
-                html.setAttribute('data-theme', 'light');
-                icon.className = 'fas fa-sun';
-                localStorage.setItem('theme', 'light');
-            } else if (current === 'light') {
-                html.setAttribute('data-theme', 'grey');
-                icon.className = 'fas fa-adjust';
-                localStorage.setItem('theme', 'grey');
-            } else if (current === 'grey') {
-                html.setAttribute('data-theme', 'premium');
-                icon.className = 'fas fa-gem';
-                localStorage.setItem('theme', 'premium');
-            } else {
-                html.setAttribute('data-theme', 'dark');
-                icon.className = 'fas fa-moon';
-                localStorage.setItem('theme', 'dark');
-            }
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            
+            const icons = { dark: 'fa-moon', light: 'fa-sun', grey: 'fa-adjust', premium: 'fa-gem' };
+            icon.className = `fas ${icons[next]}`;
         }
-        
-        // Load Saved Theme on Page Load
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        const themeIcon = document.getElementById('themeIcon');
-        if (savedTheme === 'dark') themeIcon.className = 'fas fa-moon';
-        else if (savedTheme === 'light') themeIcon.className = 'fas fa-sun';
-        else if (savedTheme === 'grey') themeIcon.className = 'fas fa-adjust';
-        else if (savedTheme === 'premium') themeIcon.className = 'fas fa-gem';
 
-        // Toggle Login/Signup Form Logic
         function toggleForms() {
             document.getElementById('loginForm').classList.toggle('active');
             document.getElementById('signupForm').classList.toggle('active');
         }
 
-        // Show Notification
+        function togglePasswordVisibility(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
         function showToast(msg, type) {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
@@ -326,70 +236,85 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // --- HANDLE LOGIN ---
+        // Initialize Theme
+        const saved = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+        const icons = { dark: 'fa-moon', light: 'fa-sun', grey: 'fa-adjust', premium: 'fa-gem' };
+        document.getElementById('themeIcon').className = `fas ${icons[saved]}`;
+
         async function handleLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPass').value;
             const btn = document.getElementById('loginBtn');
+            const originalContent = btn.innerHTML;
             
-            btn.innerText = "Checking...";
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> <span>Authorizing...</span>';
             
             try {
                 const res = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({
+                        email: document.getElementById('loginEmail').value,
+                        password: document.getElementById('loginPass').value
+                    })
                 });
-                
                 const data = await res.json();
                 
-                if (res.status === 200 && data.success) {
-                    showToast('Login Successful! Redirecting...', 'success');
+                if (res.ok && data.success) {
+                    showToast('Access Granted! Welcome, ' + data.name, 'success');
                     setTimeout(() => window.location.href = '/dashboard', 1000);
                 } else {
-                    showToast(data.error || 'Login Failed', 'error');
-                    btn.innerText = "Login";
+                    showToast(data.error || 'Invalid Credentials', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
                 }
             } catch (err) {
-                showToast('Server Error. Check Connection.', 'error');
-                btn.innerText = "Login";
+                showToast('Network error. Check server status.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
             }
         }
 
-        // --- HANDLE REGISTER ---
         async function handleRegister(e) {
             e.preventDefault();
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPass').value;
             const btn = document.getElementById('regBtn');
-
-            btn.innerText = "Creating...";
+            const originalContent = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> <span>Processing...</span>';
 
             try {
                 const res = await fetch('/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password })
+                    body: JSON.stringify({
+                        name: document.getElementById('regName').value,
+                        email: document.getElementById('regEmail').value,
+                        role: document.getElementById('regRole').value,
+                        password: document.getElementById('regPass').value
+                    })
                 });
-
                 const data = await res.json();
 
-                if (res.status === 200 && data.success) {
-                    showToast('Account Created! Please Login.', 'success');
-                    toggleForms(); // Switch to login
-                    btn.innerText = "Sign Up";
+                if (res.ok && data.success) {
+                    showToast('Registration Successful! Redirecting to login...', 'success');
+                    setTimeout(() => {
+                        toggleForms();
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                    }, 1500);
                 } else {
-                    showToast(data.error || 'Registration Failed', 'error');
-                    btn.innerText = "Sign Up";
+                    showToast(data.error || 'Registration failed.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
                 }
             } catch (err) {
-                showToast('Server Error.', 'error');
-                btn.innerText = "Sign Up";
+                showToast('Server connection failed.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
             }
         }
     </script>
-
 </body>
 </html>

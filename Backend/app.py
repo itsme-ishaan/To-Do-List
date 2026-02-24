@@ -7,26 +7,37 @@ import os
 
 app = Flask(__name__)
 
-# Security Tip: Deployment ke waqt environment variable use karein
-app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this-in-production')
-CORS(app)
+# Security & Session Configuration
+app.secret_key = os.environ.get('SECRET_KEY', 'dev_key_taskflow_2026')
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=600 # 10 minutes
+)
+
+CORS(app, supports_credentials=True)
 
 # ---------------- DATABASE CONNECTION ---------------- #
 def get_db():
-    return mysql.connector.connect(
-        # PythonAnywhere ya Render pe deploy karte waqt ye details change hogi
-        host=os.environ.get('DB_HOST', 'localhost'),
-        user=os.environ.get('DB_USER', 'root'),
-        password=os.environ.get('DB_PASS', 'Uni#21que'),
-        database=os.environ.get('DB_NAME', 'student_task_db'),
-        autocommit=True
-    )
+    try:
+        return mysql.connector.connect(
+            host=os.environ.get('DB_HOST', 'localhost'),
+            user=os.environ.get('DB_USER', 'root'),
+            password=os.environ.get('DB_PASS', 'Uni#21que'),
+            database=os.environ.get('DB_NAME', 'student_task_db'),
+            autocommit=True
+        )
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
 
 # ---------------- LOGIN REQUIRED DECORATOR ---------------- #
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
+            if request.path.startswith('/api/'):
+                return jsonify({"error": "Unauthorized"}), 401
             return redirect(url_for('home'))
         return f(*args, **kwargs)
     return decorated_function
@@ -41,9 +52,17 @@ def home():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    # Pass all subjects and session info to the dashboard
+    subjects = [
+        "Advanced Java", "Competitive Coding - II", 
+        "Advanced SE and Agile Practises", "Cloud Computing", 
+        "Applied System Design", "Minor Project", "Generative AI"
+    ]
     return render_template('dashboard.html', 
                          user_name=session.get('user_name'),
-                         user_id=session.get('user_id'))
+                         user_id=session.get('user_id'),
+                         role=session.get('role'),
+                         subjects=subjects)
 
 @app.route('/logout')
 def logout():
@@ -51,27 +70,6 @@ def logout():
     return redirect(url_for('home'))
 
 # ---------------- AUTH API ROUTES ---------------- #
-@app.route('/api/register', methods=['POST'])
-def register():
-    data = request.json
-    name = data.get("name")
-    email = data.get("email")
-    password = data.get("password")
-
-    db = get_db()
-    cursor = db.cursor(dictionary=True)
-
-    try:
-        query = "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)"
-        values = (name, email, password)
-        cursor.execute(query, values)
-        return jsonify({"message": "User registered successfully", "success": True})
-    except mysql.connector.Error as err:
-        return jsonify({"error": "User already exists or DB Error", "success": False}), 400
-    finally:
-        cursor.close()
-        db.close()
-
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
@@ -79,99 +77,118 @@ def login():
     password = data.get("password")
 
     db = get_db()
-    cursor = db.cursor(dictionary=True)
-
-    query = "SELECT * FROM users WHERE email=%s AND password=%s"
-    cursor.execute(query, (email, password))
-    user = cursor.fetchone()
+    if not db: return jsonify({"error": "Database connection failed"}), 500
     
-    cursor.close()
-    db.close()
+    cursor = db.cursor(dictionary=True)
+    try:
+        # Fetching role is mandatory for dashboard access control
+        query = "SELECT id, name, role FROM users WHERE email=%s AND password=%s"
+        cursor.execute(query, (email, password))
+        user = cursor.fetchone()
+        
+        if user:
+            session.permanent = True
+            session['user_id'] = user["id"]
+            session['user_name'] = user["name"]
+            session['role'] = user["role"]
+            return jsonify({
+                "success": True,
+                "message": "Login successful",
+                "name": user["name"],
+                "role": user["role"]
+            })
+        else:
+            return jsonify({"success": False, "error": "Invalid email or password"}), 401
+    finally:
+        cursor.close()
+        db.close()
 
-    if user:
-        session['user_id'] = user["id"]
-        session['user_name'] = user["name"]
-        return jsonify({
-            "message": "Login successful", 
-            "user_id": user["id"],
-            "name": user["name"],
-            "success": True
-        })
-    else:
-        return jsonify({"error": "Invalid credentials", "success": False}), 401
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.json
+    name, email, password, role = data.get("name"), data.get("email"), data.get("password"), data.get("role", "student")
 
-# ---------------- TASK API ROUTES ---------------- #
+    db = get_db()
+    cursor = db.cursor()
+    try:
+        query = "INSERT INTO users (name, email, password, role) VALUES (%s, %s, %s, %s)"
+        cursor.execute(query, (name, email, password, role))
+        return jsonify({"success": True, "message": "User registered successfully"})
+    except:
+        return jsonify({"success": False, "error": "Email already registered"}), 400
+    finally:
+        cursor.close()
+        db.close()
+
+# ---------------- TASK & ANALYTICS API ---------------- #
 @app.route('/api/tasks', methods=['GET'])
 @login_required
 def get_tasks():
-    user_id = session.get('user_id')
     db = get_db()
+    if not db: return jsonify([]), 500
     cursor = db.cursor(dictionary=True)
-    
-    query = "SELECT * FROM tasks WHERE user_id=%s ORDER BY created_at DESC"
-    cursor.execute(query, (user_id,))
+    # Fetch all tasks to calculate global progress
+    cursor.execute("SELECT * FROM tasks ORDER BY created_at DESC")
     tasks = cursor.fetchall()
-    
     cursor.close()
     db.close()
     return jsonify(tasks)
 
+@app.route('/api/analytics/progress', methods=['GET'])
+@login_required
+def get_progress():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT status FROM tasks")
+    tasks = cursor.fetchall()
+    db.close()
+
+    total = len(tasks)
+    if total == 0: return jsonify({"percent": 0})
+    
+    completed = len([t for t in tasks if t['status'] == 'Completed'])
+    percent = (completed / total) * 100
+    return jsonify({"percent": round(percent, 2), "total": total, "completed": completed})
+
 @app.route('/api/tasks', methods=['POST'])
 @login_required
 def add_task():
-    data = request.json
-    user_id = session.get('user_id')
-    title = data.get("title")
-    description = data.get("description")
-    due_date = data.get("due_date")
-    priority = data.get("priority", "medium")
-
-    db = get_db()
-    cursor = db.cursor(dictionary=True)
-
-    query = """
-        INSERT INTO tasks (user_id, title, description, status, due_date, priority, created_at)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-    """
-    values = (user_id, title, description, "Pending", due_date, priority, datetime.now())
-
-    cursor.execute(query, values)
-    task_id = cursor.lastrowid
+    if session.get('role') != 'admin':
+        return jsonify({"success": False, "error": "Unauthorized: Admins only"}), 403
     
-    cursor.close()
+    data = request.json
+    values = (session['user_id'], data['title'], data.get('description', ''), 'Pending', data['due_date'], data['priority'], datetime.now())
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("INSERT INTO tasks (user_id, title, description, status, due_date, priority, created_at) VALUES (%s, %s, %s, %s, %s, %s, %s)", values)
     db.close()
-    return jsonify({"message": "Task added successfully", "task_id": task_id, "success": True})
+    return jsonify({"success": True})
 
-@app.route('/api/tasks/<int:task_id>', methods=['PUT'])
+@app.route('/api/tasks/<int:task_id>/toggle', methods=['POST'])
 @login_required
-def update_task(task_id):
-    data = request.json
-    status = data.get("status")
-
+def toggle_task(task_id):
     db = get_db()
     cursor = db.cursor(dictionary=True)
-
-    query = "UPDATE tasks SET status=%s WHERE id=%s AND user_id=%s"
-    cursor.execute(query, (status, task_id, session.get('user_id')))
+    cursor.execute("SELECT status FROM tasks WHERE id=%s", (task_id,))
+    task = cursor.fetchone()
     
-    cursor.close()
-    db.close()
-    return jsonify({"message": "Task updated successfully", "success": True})
+    if task:
+        new_status = 'Completed' if task['status'] == 'Pending' else 'Pending'
+        cursor.execute("UPDATE tasks SET status=%s WHERE id=%s", (new_status, task_id))
+        db.close()
+        return jsonify({"success": True, "new_status": new_status})
+    return jsonify({"success": False}), 404
 
 @app.route('/api/tasks/<int:task_id>', methods=['DELETE'])
 @login_required
 def delete_task(task_id):
+    if session.get('role') != 'admin':
+        return jsonify({"success": False, "error": "Unauthorized"}), 403
     db = get_db()
-    cursor = db.cursor(dictionary=True)
-    
-    query = "DELETE FROM tasks WHERE id=%s AND user_id=%s"
-    cursor.execute(query, (task_id, session.get('user_id')))
-    
-    cursor.close()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM tasks WHERE id=%s", (task_id,))
     db.close()
-    return jsonify({"message": "Task deleted successfully", "success": True})
+    return jsonify({"success": True})
 
 if __name__ == '__main__':
-    # Default port 5000, par deployment environments ke liye flexibility di hai
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
