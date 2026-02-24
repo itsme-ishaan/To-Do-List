@@ -52,7 +52,6 @@ def home():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    # Pass all subjects and session info to the dashboard
     subjects = [
         "Advanced Java", "Competitive Coding - II", 
         "Advanced SE and Agile Practises", "Cloud Computing", 
@@ -63,6 +62,14 @@ def dashboard():
                          user_id=session.get('user_id'),
                          role=session.get('role'),
                          subjects=subjects)
+
+# Naya Analytics Page Route
+@app.route('/analytics')
+@login_required
+def analytics():
+    return render_template('analytics.html', 
+                         user_name=session.get('user_name'),
+                         role=session.get('role'))
 
 @app.route('/logout')
 def logout():
@@ -81,7 +88,6 @@ def login():
     
     cursor = db.cursor(dictionary=True)
     try:
-        # Fetching role is mandatory for dashboard access control
         query = "SELECT id, name, role FROM users WHERE email=%s AND password=%s"
         cursor.execute(query, (email, password))
         user = cursor.fetchone()
@@ -127,12 +133,32 @@ def get_tasks():
     db = get_db()
     if not db: return jsonify([]), 500
     cursor = db.cursor(dictionary=True)
-    # Fetch all tasks to calculate global progress
     cursor.execute("SELECT * FROM tasks ORDER BY created_at DESC")
     tasks = cursor.fetchall()
     cursor.close()
     db.close()
     return jsonify(tasks)
+
+# Detailed Stats for Charts
+@app.route('/api/analytics/stats', methods=['GET'])
+@login_required
+def get_stats():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    
+    # Priority breakdown
+    cursor.execute("SELECT priority, COUNT(*) as count FROM tasks GROUP BY priority")
+    priority_data = cursor.fetchall()
+    
+    # Status breakdown
+    cursor.execute("SELECT status, COUNT(*) as count FROM tasks GROUP BY status")
+    status_data = cursor.fetchall()
+    
+    db.close()
+    return jsonify({
+        "priority": priority_data,
+        "status": status_data
+    })
 
 @app.route('/api/analytics/progress', methods=['GET'])
 @login_required

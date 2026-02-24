@@ -6,86 +6,277 @@
     <title>TaskFlow | Advanced Student Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
+        /* ---------------------------------------------------
+           THEME VARIABLES
+        ----------------------------------------------------- */
         :root {
-            --bg-body: #09090b; --bg-card: #18181b; --bg-sidebar: #0f0f12;
-            --text-main: #ffffff; --text-muted: #a1a1aa; --border: rgba(255, 255, 255, 0.1);
-            --primary: #6366f1; --accent: #14b8a6; --danger: #f43f5e; --warning: #f59e0b; --success: #10b981;
+            --bg-body: #09090b; 
+            --bg-card: #18181b; 
+            --bg-sidebar: #0f0f12;
+            --text-main: #ffffff; 
+            --text-muted: #a1a1aa; 
+            --border: rgba(255, 255, 255, 0.1);
+            --primary: #6366f1; 
+            --accent: #14b8a6; 
+            --danger: #f43f5e; 
+            --warning: #f59e0b; 
+            --success: #10b981;
         }
 
+        /* Light Theme */
         [data-theme="light"] {
-            --bg-body: #f3f4f6; --bg-card: #ffffff; --bg-sidebar: #ffffff;
-            --text-main: #1f2937; --text-muted: #6b7280; --border: #e5e7eb;
+            --bg-body: #f3f4f6; 
+            --bg-card: #ffffff; 
+            --bg-sidebar: #ffffff;
+            --text-main: #1f2937; 
+            --text-muted: #6b7280; 
+            --border: #e5e7eb;
+            --primary: #4f46e5;
         }
 
+        /* Premium Theme */
         [data-theme="premium"] {
-            --bg-body: #050505; --bg-card: rgba(20, 20, 25, 0.8); --bg-sidebar: #0a0a0f;
-            --border: rgba(255, 215, 0, 0.3); --primary: #FFD700;
+            --bg-body: #050505; 
+            --bg-card: rgba(20, 20, 25, 0.85); 
+            --bg-sidebar: #0a0a0f;
+            --border: rgba(255, 215, 0, 0.3); 
+            --primary: #FFD700;
+            --accent: #FFD700;
+            --text-main: #fffdf0;
         }
 
+        /* ---------------------------------------------------
+           GLOBAL STYLES
+        ----------------------------------------------------- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Outfit', sans-serif; background: var(--bg-body); color: var(--text-main); height: 100vh; overflow: hidden; transition: 0.3s; }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: var(--bg-body); 
+            color: var(--text-main); 
+            height: 100vh; 
+            overflow: hidden; 
+            transition: background 0.4s ease, color 0.4s ease; 
+        }
         
         .app-container { display: flex; height: 100vh; }
         
-        /* SIDEBAR INTERACTIVE */
-        .sidebar { width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; transition: 0.3s; }
-        .logo { font-size: 1.6rem; font-weight: 700; color: var(--primary); margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+        /* ---------------------------------------------------
+           SIDEBAR
+        ----------------------------------------------------- */
+        .sidebar { 
+            width: 260px; 
+            background: var(--bg-sidebar); 
+            border-right: 1px solid var(--border); 
+            padding: 25px; 
+            display: flex; 
+            flex-direction: column; 
+            transition: 0.3s; 
+            z-index: 100;
+        }
+        .logo { 
+            font-size: 1.6rem; 
+            font-weight: 700; 
+            color: var(--primary); 
+            margin-bottom: 30px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
         .nav-links { list-style: none; flex: 1; }
         .nav-btn { 
-            display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 8px; 
-            color: var(--text-muted); text-decoration: none; border-radius: 12px; 
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border: none; 
-            background: none; width: 100%; font-family: inherit; font-size: 1rem;
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px; 
+            margin-bottom: 8px; 
+            color: var(--text-muted); 
+            text-decoration: none; 
+            border-radius: 12px; 
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            cursor: pointer; 
+            border: none; 
+            background: none; 
+            width: 100%; 
+            font-family: inherit; 
+            font-size: 1rem;
         }
-        .nav-btn:hover { background: rgba(99, 102, 241, 0.1); color: var(--primary); transform: translateX(5px); }
-        .nav-btn.active { background: var(--primary); color: #000; font-weight: 600; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+        .nav-btn:hover { 
+            background: rgba(99, 102, 241, 0.1); 
+            color: var(--primary); 
+            transform: translateX(5px); 
+        }
+        .nav-btn.active { 
+            background: var(--primary); 
+            color: #000 !important; 
+            font-weight: 600; 
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); 
+        }
+        .nav-btn.active i { color: #000; }
 
-        /* MAIN CONTENT */
+        /* Premium Theme Overrides for Sidebar */
+        [data-theme="premium"] .nav-btn:hover { background: rgba(255, 215, 0, 0.1); }
+        [data-theme="premium"] .nav-btn.active { box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4); }
+
+        /* ---------------------------------------------------
+           MAIN CONTENT & HEADER
+        ----------------------------------------------------- */
         .main-content { flex: 1; padding: 30px; overflow-y: auto; scroll-behavior: smooth; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        
+        /* ---------------------------------------------------
+           SEARCH BAR
+        ----------------------------------------------------- */
+        .search-container { display: flex; gap: 10px; margin-bottom: 25px; }
+        .search-input { flex: 1; position: relative; }
+        .search-input i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .search-input input { 
+            padding-left: 45px; 
+            background: var(--bg-card); 
+            border: 1px solid var(--border); 
+            color: var(--text-main); 
+            width: 100%; 
+            border-radius: 12px; 
+            height: 45px; 
+        }
+
+        /* ---------------------------------------------------
+           VIEW SECTIONS (TABS)
+        ----------------------------------------------------- */
         .view-section { display: none; }
         .view-section.active { display: block; animation: fadeIn 0.4s ease forwards; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
 
-        /* PROGRESS CHART BOX */
+        /* ---------------------------------------------------
+           CALENDAR WIDGET
+        ----------------------------------------------------- */
+        .calendar-card { 
+            background: var(--bg-card); 
+            padding: 25px; 
+            border-radius: 24px; 
+            border: 1px solid var(--border); 
+            margin-bottom: 20px; 
+        }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center; }
+        .cal-day-label { font-weight: 700; color: var(--primary); font-size: 0.8rem; padding-bottom: 10px; }
+        .day-cell { 
+            aspect-ratio: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            background: rgba(255,255,255,0.02); 
+            border-radius: 12px; 
+            border: 1px solid var(--border); 
+            cursor: pointer; 
+            transition: 0.2s; 
+            position: relative;
+        }
+        .day-cell:hover { background: rgba(99, 102, 241, 0.2); border-color: var(--primary); }
+        .day-cell.selected { background: var(--primary); color: #000; font-weight: 700; border-color: var(--primary); }
+        .day-cell.today { border: 2px solid var(--accent); }
+        .task-dot { 
+            width: 5px; 
+            height: 5px; 
+            background: var(--warning); 
+            border-radius: 50%; 
+            position: absolute; 
+            bottom: 5px; 
+        }
+        
+        [data-theme="premium"] .day-cell:hover { background: rgba(255, 215, 0, 0.15); }
+
+        /* ---------------------------------------------------
+           STATS BANNER
+        ----------------------------------------------------- */
         .stat-banner { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-box { background: var(--bg-card); padding: 20px; border-radius: 20px; border: 1px solid var(--border); position: relative; overflow: hidden; }
+        .stat-box { 
+            background: var(--bg-card); 
+            padding: 20px; 
+            border-radius: 20px; 
+            border: 1px solid var(--border); 
+            position: relative; 
+            transition: 0.3s;
+        }
+        [data-theme="premium"] .stat-box { 
+            border: 1px solid rgba(255, 215, 0, 0.2); 
+            box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.05); 
+        }
         .progress-container { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; margin-top: 15px; }
         #progressBar { height: 100%; background: var(--primary); border-radius: 10px; transition: 1s ease-in-out; width: 0%; }
         .stat-val { font-size: 2rem; font-weight: 700; }
 
-        /* BENTO GRID & CARDS */
+        /* ---------------------------------------------------
+           ANALYTICS & CARDS
+        ----------------------------------------------------- */
+        .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+        .chart-container { background: var(--bg-card); padding: 25px; border-radius: 20px; border: 1px solid var(--border); height: 350px; }
+        
         .bento-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
         .task-card { 
-            background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; 
-            padding: 24px; transition: 0.3s; display: flex; flex-direction: column; 
-            justify-content: space-between; min-height: 220px; position: relative;
+            background: var(--bg-card); 
+            border: 1px solid var(--border); 
+            border-radius: 20px; 
+            padding: 24px; 
+            min-height: 200px; 
+            transition: 0.3s; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            position: relative;
         }
-        .task-card:hover { transform: translateY(-8px); border-color: var(--primary); box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
+        .task-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         
-        /* PRIORITY STYLES */
-        .priority-pill { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 15px; display: inline-block; }
+        .priority-pill { 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 0.7rem; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            margin-bottom: 12px; 
+            display: inline-block; 
+        }
         .high-pill { background: rgba(244, 63, 94, 0.15); color: var(--danger); }
         .medium-pill { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
         .low-pill { background: rgba(16, 185, 129, 0.15); color: var(--success); }
 
-        /* CALENDAR & SUBJECTS */
-        .calendar-wrapper { background: var(--bg-card); padding: 25px; border-radius: 24px; border: 1px solid var(--border); }
-        .cal-header { text-align: center; margin-bottom: 20px; color: var(--primary); font-size: 1.6rem; font-weight: 700; }
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-        .day-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid var(--border); transition: 0.2s; }
-        .today-cell { background: var(--primary); color: #000; font-weight: 800; box-shadow: 0 0 15px var(--primary); }
+        .add-btn { 
+            background: var(--primary); 
+            color: #000; 
+            padding: 12px 24px; 
+            border-radius: 50px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            transition: 0.3s; 
+        }
+        .add-btn:hover { box-shadow: 0 0 15px var(--primary); transform: scale(1.02); }
 
-        .add-btn { background: var(--primary); color: #000; padding: 12px 24px; border-radius: 50px; border: none; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
-        .add-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--primary); }
-
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); z-index:2000; align-items:center; justify-content:center; }
+        /* ---------------------------------------------------
+           MODAL
+        ----------------------------------------------------- */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); 
+            backdrop-filter: blur(8px); 
+            z-index: 2000; 
+            align-items: center; 
+            justify-content: center; 
+        }
         .modal.active { display: flex; }
-        .modal-content { background: var(--bg-card); padding: 35px; border-radius: 28px; width: 500px; border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
-        input, textarea, select { width: 100%; padding: 14px; margin: 10px 0; background: rgba(255,255,255,0.03); border: 1px solid var(--border); color: #fff; border-radius: 12px; font-family: inherit; }
+        .modal-content { background: var(--bg-card); padding: 35px; border-radius: 28px; width: 480px; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
@@ -107,55 +298,70 @@
         <div class="header">
             <div>
                 <h1 id="viewTitle">Overview</h1>
-                <p style="color: var(--text-muted);">Welcome back, <b style="color: var(--primary);">{{ user_name }}</b> ({{ role.capitalize() }})</p>
+                <p style="color:var(--text-muted);">Welcome back, <b style="color:var(--primary);">{{ user_name }}</b></p>
             </div>
-            <div style="display: flex; gap: 15px;">
-                <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" style="width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-card); color: #fff; cursor: pointer;"><i class="fas fa-moon"></i></button>
+            <div style="display:flex; gap:12px;">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" style="width:45px; height:45px; border-radius:50%; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); cursor:pointer;">
+                    <i class="fas fa-moon"></i>
+                </button>
                 {% if role == 'admin' %}
-                <button class="add-btn" onclick="openModal()"><i class="fas fa-plus-circle"></i> Add Task</button>
+                <button class="add-btn" onclick="openModal()"><i class="fas fa-plus"></i> Add Task</button>
                 {% endif %}
             </div>
         </div>
 
         <div class="stat-banner">
             <div class="stat-box">
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Course Progress</p>
+                <p style="color:var(--text-muted); font-size:0.85rem;">Course Progress</p>
                 <div class="stat-val" id="progressText">0%</div>
                 <div class="progress-container"><div id="progressBar"></div></div>
             </div>
-            <div class="stat-box" style="border-left: 4px solid var(--warning);"><div class="stat-val" id="pendingNum">0</div><p>Tasks Pending</p></div>
-            <div class="stat-box" style="border-left: 4px solid var(--success);"><div class="stat-val" id="doneNum">0</div><p>Tasks Completed</p></div>
+            <div class="stat-box" style="border-left:4px solid var(--warning);">
+                <div class="stat-val" id="pendingNum">0</div>
+                <p style="color:var(--text-muted);">Tasks Pending</p>
+            </div>
+            <div class="stat-box" style="border-left:4px solid var(--success);">
+                <div class="stat-val" id="doneNum">0</div>
+                <p style="color:var(--text-muted);">Tasks Completed</p>
+            </div>
         </div>
 
         <div id="dashboard" class="view-section active">
-            <h3 style="margin-bottom: 20px;">Current Sprint</h3>
+            <div class="search-container">
+                <div class="search-input">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="taskSearch" placeholder="Search tasks by name..." onkeyup="filterTasks()">
+                </div>
+            </div>
             <div class="bento-grid" id="taskGrid"></div>
         </div>
 
         <div id="calendar" class="view-section">
-            <div id="calendarContent"></div>
+            <div class="calendar-card" id="calendarContainer"></div>
+            <h3 style="margin:20px 0;">Tasks for Selected Date</h3>
+            <div class="bento-grid" id="calendarTaskGrid"></div>
         </div>
 
-        <div id="syllabus" class="view-section">
-            <h3 style="margin-bottom: 20px;">Semester VI Subjects</h3>
-            <div class="bento-grid">
-                <div class="task-card"><h3>Advanced Java</h3><p>Enterprise apps & frameworks.</p></div>
-                <div class="task-card"><h3>Competitive Coding - II</h3><p>Optimizing algorithms & DSA.</p></div>
-                <div class="task-card"><h3>Advanced SE & Agile</h3><p>Modern practices & Scrum.</p></div>
-                <div class="task-card"><h3>Cloud Computing</h3><p>AWS, Azure & Virtualization.</p></div>
-                <div class="task-card"><h3>Applied System Design</h3><p>Building scalable systems.</p></div>
-                <div class="task-card"><h3>Generative AI</h3><p>LLMs, RAG & Prompt Eng.</p></div>
-                <div class="task-card" style="border-color: var(--primary);"><h3>Minor Project</h3><p>End-to-end development.</p></div>
+        <div id="analytics" class="view-section">
+            <div class="analytics-grid">
+                <div class="chart-container"><canvas id="statusChart"></canvas></div>
+                <div class="chart-container"><canvas id="priorityChart"></canvas></div>
             </div>
         </div>
 
+        <div id="syllabus" class="view-section">
+             <div class="bento-grid">
+                <div class="task-card"><h3>Advanced Java</h3><p style="color:var(--text-muted); margin-top:8px;">Enterprise apps & frameworks.</p></div>
+                <div class="task-card"><h3>Competitive Coding - II</h3><p style="color:var(--text-muted); margin-top:8px;">Optimizing algorithms & DSA.</p></div>
+                <div class="task-card"><h3>Cloud Computing</h3><p style="color:var(--text-muted); margin-top:8px;">AWS, Azure & Virtualization.</p></div>
+                <div class="task-card"><h3>Generative AI</h3><p style="color:var(--text-muted); margin-top:8px;">LLMs, RAG & Prompt Eng.</p></div>
+            </div>
+        </div>
+        
         <div id="results" class="view-section">
-            <div class="task-card" style="min-height: auto;">
-                <h2>Academic Standing</h2>
-                <div style="margin-top: 20px;">
-                    <p>Internal Assessment: <b style="color: var(--success);">Distinction</b></p>
-                    <p>Project Reviews: <b style="color: var(--primary);">Excellent (A+)</b></p>
-                </div>
+            <div class="task-card" style="min-height:auto;">
+                <h2>CGPA: 8.9</h2>
+                <p style="color:var(--text-muted); margin-top:8px;">Academic Excellence & Distinction.</p>
             </div>
         </div>
     </main>
@@ -163,19 +369,25 @@
 
 <div class="modal" id="taskModal">
     <div class="modal-content">
-        <h2 style="margin-bottom: 10px;">Define New Task</h2>
+        <h2 style="margin-bottom:15px; color:var(--primary);">Deploy New Task</h2>
         <form onsubmit="addTask(event)">
-            <input type="text" id="tTitle" placeholder="What needs to be done?" required>
-            <textarea id="tDesc" rows="3" placeholder="Additional details..."></textarea>
-            <input type="date" id="tDate" required>
-            <select id="tPriority">
+            <input type="text" id="tTitle" placeholder="Task Name" required 
+                   style="width:100%; padding:14px; margin:10px 0; background:rgba(255,255,255,0.03); border:1px solid var(--border); color:inherit; border-radius:12px;">
+            <textarea id="tDesc" rows="3" placeholder="Additional Details..." 
+                      style="width:100%; padding:14px; margin:10px 0; background:rgba(255,255,255,0.03); border:1px solid var(--border); color:inherit; border-radius:12px;"></textarea>
+            <input type="date" id="tDate" required 
+                   style="width:100%; padding:14px; margin:10px 0; background:rgba(255,255,255,0.03); border:1px solid var(--border); color:inherit; border-radius:12px;">
+            <select id="tPriority" 
+                    style="width:100%; padding:14px; margin:10px 0; background:rgba(255,255,255,0.03); border:1px solid var(--border); color:inherit; border-radius:12px;">
                 <option value="High">High Priority</option>
                 <option value="Medium" selected>Medium Priority</option>
                 <option value="Low">Low Priority</option>
             </select>
-            <div style="display:flex; gap:10px; margin-top: 10px;">
-                <button type="button" onclick="closeModal()" style="flex:1; background:none; color:var(--text-muted); border:1px solid var(--border); border-radius:12px; cursor:pointer;">Cancel</button>
-                <button type="submit" style="flex:2; background:var(--primary); color:#000; font-weight:bold; border:none; border-radius:12px; cursor:pointer;">Deploy Task</button>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button type="button" onclick="closeModal()" 
+                        style="flex:1; background:none; color:var(--text-muted); border:1px solid var(--border); border-radius:12px; cursor:pointer;">Cancel</button>
+                <button type="submit" 
+                        style="flex:2; background:var(--primary); color:#000; font-weight:bold; border:none; border-radius:12px; cursor:pointer; padding:14px;">Create Task</button>
             </div>
         </form>
     </div>
@@ -183,47 +395,71 @@
 
 <script>
     const userRole = "{{ role }}";
+    let allTasks = [];
+    let selectedDate = new Date().toISOString().split('T')[0];
+    let charts = {};
 
+    // Handles Tab Switching
     function switchView(viewId, btn) {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
         btn.classList.add('active');
         document.getElementById('viewTitle').innerText = viewId.charAt(0).toUpperCase() + viewId.slice(1);
-        if(viewId === 'calendar') renderMonthlyCalendar();
+        
+        if (viewId === 'calendar') renderCalendar();
+        if (viewId === 'analytics') loadAnalyticsCharts();
     }
 
+    // Fetches Tasks from API
     async function loadTasks() {
-        const res = await fetch('/api/tasks');
-        const tasks = await res.json();
-        
-        // Progress Logic
-        const total = tasks.length;
-        const done = tasks.filter(t => t.status === 'Completed').length;
-        const percent = total > 0 ? Math.round((done / total) * 100) : 0;
-        
-        document.getElementById('progressText').innerText = percent + "%";
-        document.getElementById('progressBar').style.width = percent + "%";
-        document.getElementById('pendingNum').innerText = total - done;
-        document.getElementById('doneNum').innerText = done;
+        try {
+            const res = await fetch('/api/tasks');
+            allTasks = await res.json();
+            renderTasks('taskGrid', allTasks);
+            updateStats();
+            
+            // Re-render calendar if active to show dots
+            if (document.getElementById('calendar').classList.contains('active')) {
+                renderCalendar();
+            }
+        } catch (error) {
+            console.error("Failed to load tasks:", error);
+        }
+    }
 
-        const grid = document.getElementById('taskGrid');
+    // Renders Tasks into specified container
+    function renderTasks(containerId, tasks) {
+        const grid = document.getElementById(containerId);
+        if (tasks.length === 0) {
+            grid.innerHTML = '<p style="color:var(--text-muted); grid-column: 1/-1;">No tasks found.</p>';
+            return;
+        }
+
         grid.innerHTML = tasks.map(t => {
             const isDone = t.status === 'Completed';
-            const borderCol = t.priority === 'High' ? 'var(--danger)' : (t.priority === 'Medium' ? 'var(--warning)' : 'var(--success)');
+            const color = t.priority === 'High' ? 'var(--danger)' : (t.priority === 'Medium' ? 'var(--warning)' : 'var(--success)');
             
             return `
-                <div class="task-card" style="border-left: 6px solid ${borderCol}; opacity: ${isDone ? '0.6' : '1'}">
+                <div class="task-card" style="border-left: 6px solid ${color}; opacity: ${isDone ? '0.6' : '1'}">
                     <div>
                         <span class="priority-pill ${t.priority.toLowerCase()}-pill">${t.priority}</span>
-                        <h3 style="${isDone ? 'text-decoration: line-through' : ''}">${t.title}</h3>
-                        <p style="margin-top: 10px; font-size: 0.9rem; color: var(--text-muted);">${t.description || ''}</p>
+                        <h3 style="${isDone ? 'text-decoration:line-through' : ''}">${t.title}</h3>
+                        <p style="color:var(--text-muted); font-size:0.85rem; margin-top:10px;">${t.description || 'No additional details provided.'}</p>
                     </div>
-                    <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 0.8rem;"><i class="far fa-calendar"></i> ${t.due_date}</span>
-                        <div style="display: flex; gap: 12px;">
-                            <i class="fas ${isDone ? 'fa-undo' : 'fa-check-circle'}" onclick="toggleStatus(${t.id})" style="color:var(--primary); cursor:pointer; font-size: 1.2rem;"></i>
-                            ${userRole === 'admin' ? `<i class="fas fa-trash-alt" onclick="delTask(${t.id})" style="color:var(--danger); cursor:pointer; font-size: 1.1rem;"></i>` : ''}
+                    <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
+                        <small style="color:var(--text-muted);"><i class="far fa-calendar-alt"></i> ${t.due_date}</small>
+                        <div style="display:flex; gap:15px;">
+                            <i class="fas ${isDone ? 'fa-undo' : 'fa-check-circle'}" 
+                               onclick="toggleStatus(${t.id})" 
+                               style="color:var(--primary); cursor:pointer; font-size:1.3rem;" 
+                               title="Toggle Status"></i>
+                            ${userRole === 'admin' ? `
+                                <i class="fas fa-trash-alt" 
+                                   onclick="delTask(${t.id})" 
+                                   style="color:var(--danger); cursor:pointer; font-size:1.2rem;" 
+                                   title="Delete Task"></i>
+                            ` : ''}
                         </div>
                     </div>
                 </div>
@@ -231,64 +467,193 @@
         }).join('');
     }
 
-    function renderMonthlyCalendar() {
+    // Search Filter Logic
+    function filterTasks() {
+        const query = document.getElementById('taskSearch').value.toLowerCase();
+        const filtered = allTasks.filter(t => t.title.toLowerCase().includes(query));
+        renderTasks('taskGrid', filtered);
+    }
+
+    // Interactive Calendar Logic
+    function renderCalendar() {
         const now = new Date();
-        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-        let html = `<div class="calendar-wrapper"><div class="cal-header">${now.toLocaleString('default', {month:'long'})} ${now.getFullYear()}</div><div class="cal-grid">`;
-        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        days.forEach(d => html += `<div style="color:var(--primary); font-weight:700; font-size:0.8rem;">${d}</div>`);
-        for(let i=1; i<=daysInMonth; i++) {
-            const isToday = i === now.getDate() ? 'today-cell' : '';
-            html += `<div class="day-cell ${isToday}">${i}</div>`;
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        let html = `
+            <div style="text-align:center; margin-bottom:20px; font-weight:700; color:var(--primary); font-size:1.4rem;">
+                ${now.toLocaleString('default', {month:'long'})} ${year}
+            </div>
+            <div class="cal-grid">
+        `;
+        
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(d => {
+            html += `<div class="cal-day-label">${d}</div>`;
+        });
+        
+        for (let i = 1; i <= daysInMonth; i++) {
+            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+            const hasTask = allTasks.some(t => t.due_date === dateStr);
+            const isSelected = selectedDate === dateStr ? 'selected' : '';
+            const isToday = (i === now.getDate() && month === now.getMonth() && year === now.getFullYear()) ? 'today' : '';
+            
+            html += `
+                <div class="day-cell ${isSelected} ${isToday}" onclick="selectDate('${dateStr}')">
+                    ${i}
+                    ${hasTask ? '<div class="task-dot"></div>' : ''}
+                </div>
+            `;
         }
-        html += `</div></div>`;
-        document.getElementById('calendarContent').innerHTML = html;
+        
+        document.getElementById('calendarContainer').innerHTML = html + `</div>`;
+        filterTasksByDate();
     }
 
-    // Role-based Controls
-    async function toggleStatus(id) {
-        await fetch(`/api/tasks/${id}/toggle`, { method: 'POST' });
-        loadTasks();
+    // Triggered when a calendar date is clicked
+    function selectDate(date) {
+        selectedDate = date;
+        renderCalendar();
     }
 
-    async function delTask(id) {
-        if(confirm("Project Manager: Confirm deletion of this task?")) {
-            await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
-            loadTasks();
+    // Render tasks only for the selected date
+    function filterTasksByDate() {
+        const filtered = allTasks.filter(t => t.due_date === selectedDate);
+        renderTasks('calendarTaskGrid', filtered);
+    }
+
+    // Updates Top Dashboard Stats
+    function updateStats() {
+        const done = allTasks.filter(t => t.status === 'Completed').length;
+        const total = allTasks.length;
+        const percent = total > 0 ? Math.round((done/total)*100) : 0;
+        
+        document.getElementById('progressText').innerText = percent + "%";
+        document.getElementById('progressBar').style.width = percent + "%";
+        document.getElementById('pendingNum').innerText = total - done;
+        document.getElementById('doneNum').innerText = done;
+    }
+
+    // Fetch and Load Chart.js instances
+    async function loadAnalyticsCharts() {
+        try {
+            const res = await fetch('/api/analytics/stats');
+            const data = await res.json();
+            
+            if (charts.status) charts.status.destroy();
+            if (charts.priority) charts.priority.destroy();
+
+            // Status Pie Chart
+            charts.status = new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: { 
+                    labels: data.status.map(s => s.status), 
+                    datasets: [{ 
+                        data: data.status.map(s => s.count), 
+                        backgroundColor: ['#10b981', '#f59e0b'],
+                        borderWidth: 0
+                    }] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { labels: { color: '#fff', font: {family: 'Outfit'} } } } 
+                }
+            });
+
+            // Priority Bar Chart
+            charts.priority = new Chart(document.getElementById('priorityChart'), {
+                type: 'bar',
+                data: { 
+                    labels: data.priority.map(p => p.priority), 
+                    datasets: [{ 
+                        label: 'Tasks Count', 
+                        data: data.priority.map(p => p.count), 
+                        backgroundColor: '#6366f1',
+                        borderRadius: 6
+                    }] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { 
+                        y: { ticks: { color: '#fff' }, grid: {color: 'rgba(255,255,255,0.05)'} }, 
+                        x: { ticks: { color: '#fff' }, grid: {display: false} } 
+                    },
+                    plugins: { legend: { labels: { color: '#fff', font: {family: 'Outfit'} } } }
+                }
+            });
+        } catch(e) {
+            console.error("Failed loading charts", e);
         }
     }
 
+    // Task API Interactions
+    async function toggleStatus(id) { 
+        await fetch(`/api/tasks/${id}/toggle`, { method: 'POST' }); 
+        loadTasks(); 
+    }
+    
+    async function delTask(id) { 
+        if (confirm("Are you sure you want to permanently delete this task?")) { 
+            await fetch(`/api/tasks/${id}`, { method: 'DELETE' }); 
+            loadTasks(); 
+        } 
+    }
+
+    // Modal Display Logic
     function openModal() { document.getElementById('taskModal').classList.add('active'); }
     function closeModal() { document.getElementById('taskModal').classList.remove('active'); }
 
+    // Task Creation Form Submission
     async function addTask(e) {
         e.preventDefault();
-        const data = {
-            title: document.getElementById('tTitle').value,
-            description: document.getElementById('tDesc').value,
-            due_date: document.getElementById('tDate').value,
-            priority: document.getElementById('tPriority').value
+        const data = { 
+            title: document.getElementById('tTitle').value, 
+            description: document.getElementById('tDesc').value, 
+            due_date: document.getElementById('tDate').value, 
+            priority: document.getElementById('tPriority').value 
         };
-        const res = await fetch('/api/tasks', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
+        await fetch('/api/tasks', { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify(data) 
         });
-        if(res.ok) { closeModal(); loadTasks(); }
+        
+        // Reset form and UI
+        e.target.reset();
+        closeModal(); 
+        loadTasks();
     }
 
+    // Tri-state Theme Toggle (Dark -> Light -> Premium)
     function toggleTheme() {
         const html = document.documentElement;
-        const current = html.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : current === 'light' ? 'premium' : 'dark';
-        html.setAttribute('data-theme', next);
-        localStorage.setItem('theme', next);
-        document.querySelector('#themeBtn i').className = next === 'premium' ? 'fas fa-gem' : next === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+        const currentTheme = html.getAttribute('data-theme');
+        let nextTheme = 'dark';
+        
+        if (currentTheme === 'dark') nextTheme = 'light';
+        else if (currentTheme === 'light') nextTheme = 'premium';
+        else if (currentTheme === 'premium') nextTheme = 'dark';
+        
+        html.setAttribute('data-theme', nextTheme);
+        localStorage.setItem('theme', nextTheme);
+        updateThemeIcon(nextTheme);
     }
 
+    // Utility to swap the moon/sun/gem icon
+    function updateThemeIcon(theme) {
+        const icon = document.querySelector('#themeBtn i');
+        if (theme === 'premium') icon.className = 'fas fa-gem';
+        else if (theme === 'light') icon.className = 'fas fa-sun';
+        else icon.className = 'fas fa-moon';
+    }
+
+    // Initialize Dashboard
     window.onload = () => {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
         loadTasks();
     };
 </script>
