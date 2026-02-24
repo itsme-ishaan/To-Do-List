@@ -1,4 +1,4 @@
-# 🌊 TaskFlow - Modern Task Management System
+# 🌊 TaskFlow - Advanced Task Management System
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
 </p>
 
-TaskFlow ek high-performance web application hai jo **Glassmorphism UI** par mabni hai. Ise specifically productivity aur aesthetics ko dhyan mein rakh kar banaya gaya hai.
+TaskFlow ek high-performance web application hai jo **Glassmorphism UI** par mabni hai. Ise specifically productivity, agile methodology, aur aesthetic design ko dhyan mein rakh kar banaya gaya hai.
 
 ---
 
@@ -18,12 +18,20 @@ Yahan aap project ka interface aur design dekh sakte hain:
 
 <table border="0">
   <tr>
-    <td width="50%"><b>🔐 Secure Login</b></td>
+    <td width="50%"><b>🔐 Secure Gateway (Login)</b></td>
     <td width="50%"><b>📊 Overview Dashboard</b></td>
   </tr>
   <tr>
     <td><img src="screenshots/login.png" alt="Login Page" width="100%"></td>
     <td><img src="screenshots/dashboard.png" alt="Dashboard" width="100%"></td>
+  </tr>
+  <tr>
+    <td><b>🗂️ Drag & Drop Kanban Board</b></td>
+    <td><b>📈 Real-time Analytics</b></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/kanban.png" alt="Kanban Board" width="100%"></td>
+    <td><img src="screenshots/analytics.png" alt="Analytics Chart" width="100%"></td>
   </tr>
   <tr>
     <td><b>📅 Interactive Calendar</b></td>
@@ -34,8 +42,8 @@ Yahan aap project ka interface aur design dekh sakte hain:
     <td><img src="screenshots/syllabus.png" alt="Syllabus View" width="100%"></td>
   </tr>
   <tr>
-    <td><b>🏆 Results & Analytics</b></td>
-    <td><b>🎨 UI Prototype</b></td>
+    <td><b>🏆 Results & Standing</b></td>
+    <td><b>🎨 UI Prototype Concept</b></td>
   </tr>
   <tr>
     <td><img src="screenshots/result.png" alt="Results View" width="100%"></td>
@@ -49,14 +57,18 @@ Yahan aap project ka interface aur design dekh sakte hain:
 
 ### ✨ Modern UI/UX
 * **Glassmorphism Design:** Frosted glass effect aur soft gradients ka upyog.
-* **Fully Responsive:** Laptop ho ya mobile, interface har jagah perfect dikhta hai.
+* **Tri-state Theme Engine:** Dark, Light aur Premium themes ke beech seamless switching.
 * **Smart Notifications:** Task update hone par dynamic toast messages.
 
-### 📝 Task Management
-* **Advanced CRUD:** Create, Edit, aur Delete tasks smoothly.
-* **Priority Tracking:** Tasks ko `High`, `Medium`, aur `Low` priority mein set karein.
-* **Status Monitoring:** Check karein kaunse tasks `Pending` hain aur kaunse `Completed`.
-* **Due Dates:** Har task ke liye deadline set karne ki suvidha.
+### 📝 Advanced Task Management
+* **Kanban Layout:** Tasks ko drag-and-drop karke 'To-Do' se 'Done' mein move karein.
+* **Role-Based Access Control (RBAC):** Admin (Project Manager) tasks assign kar sakta hai, aur Student unhe execute kar sakta hai.
+* **Priority Tracking:** Tasks ko `High`, `Medium`, aur `Low` priority mein set karein (Color-coded borders ke sath).
+
+### 🚀 Productivity Tools
+* **Pomodoro Timer:** Focus badhane ke liye inbuilt 25-minute timer.
+* **Chart.js Analytics:** Tasks completion aur priority ka visual representation.
+* **Export PDF:** One-click mein apne dashboard ka PDF report generate karein.
 
 ---
 
@@ -66,7 +78,8 @@ Yahan aap project ka interface aur design dekh sakte hain:
 | :--- | :--- |
 | **Backend** | Python 3.8+, Flask Framework |
 | **Database** | MySQL 8.0 |
-| **Frontend** | HTML5, CSS3 (Glassmorphism), JavaScript |
+| **Frontend** | HTML5, CSS3 (Glassmorphism), JavaScript (Vanilla) |
+| **Libraries** | Chart.js (Analytics), HTML2PDF.js (Reporting) |
 | **Icons** | FontAwesome & Shields.io |
 
 ---
